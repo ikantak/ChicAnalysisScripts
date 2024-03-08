@@ -26,27 +26,31 @@ def make_common_style(g1,marker,size,color,width=1,fill=0):
     g1.SetFillStyle(fill);
 
 def deltamass_plot(filename1,  option, plotname):
+    #open input file
     rootfile_data = TFile.Open(filename1, "READ");
     list_data = rootfile_data.Get("analysis-dilepton-photon");
     list_data2 = list_data.Get("output");
 
     if option == 0: 
+        #get the data from the chic delta mass histograms
         mc_eephoton_chic1 = list_data2.FindObject("MCTruthGenTriple_cut_eePhotonFromChic1")
         mc_eephoton_chic2 = list_data2.FindObject("MCTruthGenTriple_cut_eePhotonFromChic2")
         mc_eephoton_chic12 = list_data2.FindObject("MCTruthGenTriple_cut_eePhotonFromChic12")
         eephoton1_deltaM = mc_eephoton_chic1.FindObject("DeltaMass_Jpsi");
         eephoton1_deltaM.SetDirectory(0);
+        #set style of the histogram markers and color
         make_common_style(eephoton1_deltaM, kFullCrossX, 1.0, kRed, 1, 0);
         ROOT.SetOwnership(eephoton1_deltaM, False);
-        eephoton1_deltaM.Rebin(2)
+        # eephoton1_deltaM.Rebin(2)
         print(eephoton1_deltaM.GetNbinsX())
+        #divide by bin width to get counts per GeV/c^{2}
         eephoton1_deltaM.Scale(1, "width")
 
         eephoton2_deltaM = mc_eephoton_chic2.FindObject("DeltaMass_Jpsi");
         eephoton2_deltaM.SetDirectory(0);
         make_common_style(eephoton2_deltaM, kFullCrossX, 1.0, kOrange+7, 1, 0);
         ROOT.SetOwnership(eephoton2_deltaM, False);
-        eephoton2_deltaM.Rebin(2)
+        # eephoton2_deltaM.Rebin(2)
         print(eephoton2_deltaM.GetNbinsX())
         eephoton2_deltaM.Scale(1, "width")
     
@@ -54,7 +58,7 @@ def deltamass_plot(filename1,  option, plotname):
         eephoton12_deltaM.SetDirectory(0);
         make_common_style(eephoton12_deltaM, kFullCrossX, 1.0, kRed+2, 1, 0);
         ROOT.SetOwnership(eephoton12_deltaM, False);
-        eephoton12_deltaM.Rebin(2)
+        # eephoton12_deltaM.Rebin(2)
         print(eephoton12_deltaM.GetNbinsX())
         eephoton12_deltaM.Scale(1, "width")
     
@@ -116,11 +120,13 @@ def deltamass_plot(filename1,  option, plotname):
         # g2.SetParLimits(1, 3.4, 3.52)
         # g3.SetParLimits(1, 3.52, 3.7)
         # total = ROOT.TF1("total", "gaus(0)+gaus(3)", 3.4, 3.7)
-        g2 = ROOT.TF1("lorentz1", "(0.5*[0]*[1]/TMath::Pi()) / TMath::Max(1.e-10,(x-[2])*(x-[2])+ .25*[1]*[1])", 3.4, 3.6)
-        g3 = ROOT.TF1("lorentz2", "(0.5*[0]*[1]/TMath::Pi()) / TMath::Max(1.e-10,(x-[2])*(x-[2])+ .25*[1]*[1])", 3.52, 3.6)
+
+        #Define fit function 
+        g2 = ROOT.TF1("lorentz1", "(0.25*[0]*[1]*[1]/TMath::Pi()) / TMath::Max(1.e-10,(x-[2])*(x-[2])+ .25*[1]*[1])", 3.45, 3.54)
+        g3 = ROOT.TF1("lorentz2", "(0.25*[0]*[1]*[1]/TMath::Pi()) / TMath::Max(1.e-10,(x-[2])*(x-[2])+ .25*[1]*[1])", 3.52, 3.6)
         # g2.SetParLimits(1, 3.4, 3.52)
         # g3.SetParLimits(1, 3.52, 3.7)
-        
+        #set parameter limits
         g2.SetParLimits(2, 3.485, 3.52)
         g3.SetParLimits(2, 3.53, 3.57)
         g2.SetParameter(0, eephoton1_deltaM.GetMaximum())
@@ -132,8 +138,10 @@ def deltamass_plot(filename1,  option, plotname):
         g2.SetParameter(1, 0.00084)
         g3.SetParameter(1, 0.03)
         g2.SetParLimits(1, 0.0005, 0.002)
+        g3.SetParLimits(1, 0.0005, 0.003)
         # g3.SetParLimits(2, 3.53, 3.57)
-        total = ROOT.TF1("total", "lorentz1+lorentz2", 3.4, 3.7)
+        #set fit functions for overall fit
+        total = ROOT.TF1("total", "lorentz1+lorentz2", 3.48, 3.58)
         # total = ROOT.TF1("total", "fGaussExp1+fGaussExp2", 3.44, 3.58)
     elif option == 4: 
         g2 = ROOT.TF1("fGaussExp1",
@@ -220,24 +228,36 @@ def deltamass_plot(filename1,  option, plotname):
     total.SetLineWidth(1)
     g2.SetLineWidth(1)
     g3.SetLineWidth(1)
-    
+    #variables where settings for fits are saved
     par = np.zeros(6, dtype=c_double)
     par2 = np.zeros(6, dtype=c_double)
     par3 = np.zeros(8, dtype=c_double)
     par4 = np.zeros(9, dtype=c_double)
+
     if option == 0:
+        #fit the function to chic1 distribution
+        #0 for not drawing the fit
         eephoton1_deltaM.Fit(g2,"R0")
+        #fit the function to chic2 distribution
         eephoton2_deltaM.Fit(g3, "R0+")
+        #Get the parameters of the fits and save them in par
         g2.GetParameters(par[0:3])
         g3.GetParameters(par[3:6])
+        #Take the parameters of g2 and g3 as input for the overall fit
         total.SetParameters(par)
+        #Set limits to parameters
+        total.SetParLimits(1, 0.0005, 0.002)
+        total.SetParLimits(4, 0.0005, 0.003)
+        #fit to the chic distribution
         eephoton12_deltaM.Fit(total, "R+")
+        #update the values of the other two fits
         g2.SetParameter(0, total.GetParameter(0))
         g2.SetParameter(1, total.GetParameter(1))
         g2.SetParameter(2, total.GetParameter(2))
         g3.SetParameter(0, total.GetParameter(3))
         g3.SetParameter(1, total.GetParameter(4))
         g3.SetParameter(2, total.GetParameter(5))
+
         #eephoton12_deltaM.Fit(total, "R+")
 
         
@@ -345,6 +365,7 @@ def deltamass_plot(filename1,  option, plotname):
         # g3.SetParameter(0, total.GetParameter(3))
         # g3.SetParameter(1, total.GetParameter(4))
         # g3.SetParameter(2, total.GetParameter(5))
+    # define maximum value for histogram 
     ymax = 100
   
     if option == 0 : 
@@ -357,14 +378,15 @@ def deltamass_plot(filename1,  option, plotname):
     if option == 3: 
         ymax = eephoton2_deltaM.GetMaximum()
 
-    
+    #define window for histogram 
     c1 = TCanvas("DeltaMass","\Delta Mass",0,0,900,900);
     p1 = c1.cd();
     p1.SetPad(0,0.01,0.99,1);
-    p1.SetMargin(0.15,0.05,0.12,0.03);
+    p1.SetMargin(0.15,0.05,0.12,0.05);
     p1.SetTicks(1,1);
     if option != 1 and option !=4 and option != 5 and option != 6:
         p1.SetLogy() #log scale
+    #xrange of histograms
     xmin = 3.2
     xmax = 4.2
     if option == 1 or option == 4 or option == 5 or option == 6:
@@ -378,7 +400,7 @@ def deltamass_plot(filename1,  option, plotname):
     if option == 0:
         ymin = 99999
 
-
+    #histogram frame settings
     frame1 = p1.DrawFrame(xmin, ymin,xmax, ymax+(ymax*0.2));
     frame1.GetXaxis().SetTitle("\Deltam + m_{J/\psi}^{PDG} [GeV/c^{2}]");
     frame1.GetYaxis().SetTitle("Counts per GeV/c^{2}");
@@ -427,14 +449,19 @@ def deltamass_plot(filename1,  option, plotname):
         
 
     if option == 0: 
+        #Ddefine legend position
         leg = TLegend(0.17,0.6,.5,0.7);
+        #Draw delta mass of chic
         eephoton12_deltaM.Draw("Esame")
         #eephoton12_deltaM.Draw("Esame,hist")
         # g2.Draw("same")
         # g3.Draw("same")
         # total.Draw("same")
+        #draw deltamass of chic1
         eephoton1_deltaM.Draw("Esame")
+        #drqw deltamass of chic2
         eephoton2_deltaM.Draw("Esame")
+        #add legend entries
         leg.AddEntry(eephoton12_deltaM, "\chi_{c1,c2} \\rightarrow \gamma e^{+} e^{-}","LP")
         leg.AddEntry(eephoton1_deltaM, "\chi_{c1} \\rightarrow \gamma e^{+} e^{-}","LP");
         leg.AddEntry(eephoton2_deltaM, "\chi_{c2} \\rightarrow \gamma e^{+} e^{-}","LP");
@@ -498,7 +525,7 @@ def deltamass_plot(filename1,  option, plotname):
        eephoton2_deltaM.Draw("Esame") 
        #g3.Draw("same")
        leg.AddEntry(eephoton2_deltaM, "\gamma e^{+} e^{-} from \chi_{c2} ","LP")
-         
+    #Legend settings    
     leg.SetBorderSize(0);
     leg.SetFillColor(kWhite);
     leg.SetFillStyle(0);
@@ -510,36 +537,42 @@ def deltamass_plot(filename1,  option, plotname):
     ROOT.SetOwnership(txt5,False);  
     txt6.Draw();
     ROOT.SetOwnership(txt6,False);  
+    #Add text to the histograms
     if option == 0: 
-        txt = TPaveText(0.4,0.85,0.4,0.95,"NDC");
+        txt = TPaveText(0.45,0.85,0.45,0.95,"NDC");
     else:
-        txt = TPaveText(0.90,0.85,0.9,0.95,"NDC");
+        txt = TPaveText(0.92,0.85,0.92,0.95,"NDC");
     txt.SetFillColor(kWhite);
     txt.SetFillStyle(0);
     txt.SetBorderSize(0);
     txt.SetTextAlign(33);#middle,left
     txt.SetTextFont(42);#helvetica
     txt.SetTextSize(0.03);
-    txt.AddText("ALICE simulation");
+    txt.AddText("Simulation this thesis");
     txt.Draw();
     ROOT.SetOwnership(txt,False);
+    # if option == 0: 
+    #     txt2 = TPaveText(0.345,0.8,0.33,0.925,"NDC");
+    # else:
+    #     txt2 = TPaveText(0.845,0.8,0.83,0.925,"NDC");
+    # txt2.SetFillColor(kWhite);
+    # txt2.SetFillStyle(0);
+    # txt2.SetBorderSize(0);
+    # txt2.SetTextAlign(33);#middle,left
+    # txt2.SetTextFont(42);#helvetica
+    # txt2.SetTextSize(0.03);
+    # txt2.AddText("this thesis");
+    # txt2.Draw();
+    # ROOT.SetOwnership(txt2,False);
+    # if option == 0: 
+    #     txt3 = TPaveText(0.4,0.75,0.4,0.90,"NDC");
+    # else:
+    #     txt3 = TPaveText(0.9,0.75,0.9,0.90,"NDC");
+    
     if option == 0: 
-        txt2 = TPaveText(0.345,0.8,0.33,0.925,"NDC");
+        txt3 = TPaveText(0.425,0.8,0.425,0.925,"NDC");
     else:
-        txt2 = TPaveText(0.845,0.8,0.83,0.925,"NDC");
-    txt2.SetFillColor(kWhite);
-    txt2.SetFillStyle(0);
-    txt2.SetBorderSize(0);
-    txt2.SetTextAlign(33);#middle,left
-    txt2.SetTextFont(42);#helvetica
-    txt2.SetTextSize(0.03);
-    txt2.AddText("this thesis");
-    txt2.Draw();
-    ROOT.SetOwnership(txt2,False);
-    if option == 0: 
-        txt3 = TPaveText(0.4,0.75,0.4,0.90,"NDC");
-    else:
-        txt3 = TPaveText(0.9,0.75,0.9,0.90,"NDC");
+        txt3 = TPaveText(0.9,0.8,0.9,0.925,"NDC");
     txt3.SetFillColor(kWhite);
     txt3.SetFillStyle(0);
     txt3.SetBorderSize(0);
@@ -550,7 +583,7 @@ def deltamass_plot(filename1,  option, plotname):
     txt3.Draw();
     ROOT.SetOwnership(txt3,False);
     if option == 4: 
-        txt4 = TPaveText(0.8,0.77,0.87,0.8,"NDC");
+        txt4 = TPaveText(0.8,0.75,0.87,0.9,"NDC");
         txt4.SetFillColor(kWhite);
         txt4.SetFillStyle(0);
         txt4.SetBorderSize(0);
@@ -561,7 +594,7 @@ def deltamass_plot(filename1,  option, plotname):
         txt4.Draw();
         ROOT.SetOwnership(txt4,False);
     if option == 0: 
-        txt4 = TPaveText(0.3,0.77,0.38,0.8,"NDC");
+        txt4 = TPaveText(0.33,0.75,0.41,0.9,"NDC");
         txt4.SetFillColor(kWhite);
         txt4.SetFillStyle(0);
         txt4.SetBorderSize(0);
@@ -597,11 +630,9 @@ def deltamass_plot(filename1,  option, plotname):
 
 
 if __name__ == "__main__":
-    deltamass_plot("AnalysisResults_chicall_20240224.root", 4, "20240225/plot_fitexpodeltamass_matched.pdf")
-    deltamass_plot("AnalysisResults_chicall_20240224.root", 4, "20240225/plot_fitexpodeltamass_matched.svg")
+    deltamass_plot("AnalysisResults_chicall_20240224.root", 4, "20240305/plot_fitexpodeltamass_matched.pdf")
+    deltamass_plot("AnalysisResults_chicall_20240224.root", 4, "20240305/plot_fitexpodeltamass_matched.svg")
     #deltamass_plot("AnalysisResults_chicall_20240224.root", 6, "20240225/plot_fitdeltamass_matched.pdf")
     # deltamass_plot("AnalysisResults_chicall_20240224.root", 5, "20240225/plot_fitexpodeltamass_matched.svg")
-    deltamass_plot("AnalysisResults_chicall_20240224.root", 0, "20240225/plot_fitdeltamass_truth.pdf")
-    deltamass_plot("AnalysisResults_chicall_20240224.root", 0, "20240225/plot_fitdeltamass_truth.svg")
-# option 0: delta Mass_jpsi truth MC for chic1, chic2 and chic12 together
-# option 1: delta Mass_jpsi matched MC for chic1, chic2 and chic12 together 
+    deltamass_plot("AnalysisResults_chicall_20240224.root", 0, "20240305/plot_fit_breitdeltamass_truth.pdf")
+    deltamass_plot("AnalysisResults_chicall_20240224.root", 0, "20240305/plot_fit_breitdeltamass_truth.svg")
