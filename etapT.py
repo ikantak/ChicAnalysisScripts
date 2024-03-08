@@ -345,11 +345,16 @@ def pT_plot(filename1, option, plotname):
     
     
     #ymax = max(jpsi1_pt.GetMaximum(), jpsi2_pt.GetMaximum(), photon1_pt.GetMaximum(), photon2_pt.GetMaximum());
-    
-    c1 = TCanvas("pT_distribution","pT distribution",0,0,900,900);
+    if option == 18: 
+        c1 = TCanvas("pT_distribution","pT distribution",0,0,1500,900);
+    else: 
+        c1 = TCanvas("pT_distribution","pT distribution",0,0,900,900);
     p1 = c1.cd();
     p1.SetPad(0,0.01,1,1);
-    p1.SetMargin(0.15,0.05,0.12,0.05);
+    if option == 18: 
+        p1.SetMargin(0.1,0.05,0.12,0.05);
+    else: 
+        p1.SetMargin(0.15,0.05,0.12,0.05);
     p1.SetTicks(1,1);
    
     p1.SetLogy() #log scale
@@ -397,11 +402,15 @@ def pT_plot(filename1, option, plotname):
 
     frame1 = p1.DrawFrame(0, ymin, xmax, ymax);
     frame1.GetXaxis().SetTitle("p_{T} [GeV/c]");
-    frame1.GetYaxis().SetTitle("counts per GeV/c");
+    frame1.GetYaxis().SetTitle("Counts per GeV/c");
     frame1.GetXaxis().SetTitleSize(0.045);
     frame1.GetYaxis().SetTitleSize(0.045);
-    frame1.GetXaxis().SetTitleOffset(1.1);
-    frame1.GetYaxis().SetTitleOffset(1.4);
+    if option == 18: 
+        frame1.GetXaxis().SetTitleOffset(1.1);
+        frame1.GetYaxis().SetTitleOffset(1.);
+    else: 
+        frame1.GetXaxis().SetTitleOffset(1.1);
+        frame1.GetYaxis().SetTitleOffset(1.4);
     frame1.GetXaxis().SetLabelSize(0.035);
     frame1.GetYaxis().SetLabelSize(0.035);
     frame1.GetYaxis().SetMaxDigits(3);
@@ -538,7 +547,7 @@ def pT_plot(filename1, option, plotname):
         leg.AddEntry(photonchic2_cut_data_pt, "\gamma from \chi_{c2} MC matched ","LP")
 
     if option == 18:
-        leg = TLegend(0.2,0.2,0.5,0.25);
+        leg = TLegend(0.13,0.2,0.35,0.3);
         eephoton1_cut_data_pt.Draw("Esame")
         eephoton2_cut_data_pt.Draw("Esame")
         leg.AddEntry(eephoton1_cut_data_pt, "\chi_{c1} \\rightarrow \gamma e^{+} e^{-}","LP")
@@ -587,7 +596,7 @@ def pT_plot(filename1, option, plotname):
         leg.AddEntry(eechic2_cut_data_pt, "e^{+} e^{-} from \chi_{c2} matched MC", "LP")
 
     if option == 27:
-        leg = TLegend(0.53,0.63,0.95,0.78);
+        leg = TLegend(0.53,0.67,0.93,0.82);
         photon1_cut_pt.Draw("Esame")
         photon2_cut_pt.Draw("Esame")
         photonchic1_cut_data_pt.Draw("Esame")
@@ -647,30 +656,42 @@ def pT_plot(filename1, option, plotname):
     leg.SetTextSize(0.03);
     leg.Draw("");
     ROOT.SetOwnership(leg,False);    
-
-    txt = TPaveText(0.90,0.85,0.9,0.95,"NDC");
+    if option == 18: 
+        txt = TPaveText(0.92,0.85,0.92,0.95,"NDC");
+    else: 
+        txt = TPaveText(0.90,0.85,0.9,0.95,"NDC");
     txt.SetFillColor(kWhite);
     txt.SetFillStyle(0);
     txt.SetBorderSize(0);
     txt.SetTextAlign(33);#middle,left
     txt.SetTextFont(42);#helvetica
     txt.SetTextSize(0.03);
-    txt.AddText("ALICE simulation");
+    txt.AddText("Simulation this thesis");
     txt.Draw();
     ROOT.SetOwnership(txt,False);
 
-    txt2 = TPaveText(0.845,0.8,0.83,0.925,"NDC");
-    txt2.SetFillColor(kWhite);
-    txt2.SetFillStyle(0);
-    txt2.SetBorderSize(0);
-    txt2.SetTextAlign(33);#middle,left
-    txt2.SetTextFont(42);#helvetica
-    txt2.SetTextSize(0.03);
-    txt2.AddText("this thesis");
-    txt2.Draw();
-    ROOT.SetOwnership(txt2,False);
+    # if option == 18: 
+    #     txt2 = TPaveText(0.89,0.8,0.89, 0.925,"NDC");
+    # else: 
+    #     txt2 = TPaveText(0.845,0.8,0.83,0.925,"NDC");
+    # txt2.SetFillColor(kWhite);
+    # txt2.SetFillStyle(0);
+    # txt2.SetBorderSize(0);
+    # txt2.SetTextAlign(33);#middle,left
+    # txt2.SetTextFont(42);#helvetica
+    # txt2.SetTextSize(0.03);
+    # txt2.AddText("this thesis");
+    # txt2.Draw();
+    # ROOT.SetOwnership(txt2,False);
 
-    txt3 = TPaveText(0.9,0.75,0.9,0.90,"NDC");
+    # if option == 18: 
+    #     txt3 = TPaveText(0.92,0.75,0.92,0.90,"NDC");
+    # else: 
+    #     txt3 = TPaveText(0.9,0.75,0.9,0.90,"NDC");
+    if option == 18: 
+        txt3 = TPaveText(0.905,0.8,0.905, 0.925,"NDC");
+    else: 
+        txt3 = TPaveText(0.88,0.8,0.88,0.925,"NDC");
     txt3.SetFillColor(kWhite);
     txt3.SetFillStyle(0);
     txt3.SetBorderSize(0);
@@ -682,7 +703,7 @@ def pT_plot(filename1, option, plotname):
     ROOT.SetOwnership(txt3,False);
 
     if (option <10):
-        txt4 = TPaveText(0.88,0.77,0.88,0.8,"NDC");
+        txt4 = TPaveText(0.84,0.75,0.863,0.9,"NDC");
         txt4.SetFillColor(kWhite);
         txt4.SetFillStyle(0);
         txt4.SetBorderSize(0);
@@ -692,8 +713,19 @@ def pT_plot(filename1, option, plotname):
         txt4.AddText("MC generated");
         txt4.Draw();
         ROOT.SetOwnership(txt4,False);
-    elif (option >12 and option <23):
-        txt5 = TPaveText(0.83,0.77,0.88,0.8,"NDC");
+    elif (option >12 and option <23 and option != 18):
+        txt5 = TPaveText(0.84,0.75,0.863,0.9,"NDC");
+        txt5.SetFillColor(kWhite);
+        txt5.SetFillStyle(0);
+        txt5.SetBorderSize(0);
+        txt5.SetTextAlign(33);#middle,left
+        txt5.SetTextFont(42);#helvetica
+        txt5.SetTextSize(0.03);
+        txt5.AddText("MC matched");
+        txt5.Draw();
+        ROOT.SetOwnership(txt5,False);
+    if option == 18: 
+        txt5 = TPaveText(0.89,0.75,0.89,0.9,"NDC");
         txt5.SetFillColor(kWhite);
         txt5.SetFillStyle(0);
         txt5.SetBorderSize(0);
@@ -724,17 +756,17 @@ def pT_plot(filename1, option, plotname):
 
 if __name__ == "__main__":
     filename = "AnalysisResults_chicall_20240224.root"
-    # pT_plot(filename, 0, "20240225/plot_etapt_chic12_truth.pdf")
-    # pT_plot(filename, 0, "20240225/plot_etapt_chic12_truth.svg")
-    # pT_plot(filename, 3, "20240225/plot_etapt_jpsichic12_truth.pdf")
-    # pT_plot(filename, 3, "20240225/plot_etapt_jpsichic12_truth.svg")
-    # pT_plot(filename, 6, "20240225/plot_etapt_eejpsichic12_truth.pdf")
-    # pT_plot(filename, 6, "20240225/plot_etapt_eejpsichic12_truth.svg")
-    # pT_plot(filename, 13, "20240225/plot_etapt_eejpsichic12_matched.pdf")
-    # pT_plot(filename, 13, "20240225/plot_etapt_eejpsichic12_matched.svg")
-    # pT_plot(filename, 27, "20240225/plot_etapt_photonchic12_truthmatched.pdf")
-    # pT_plot(filename, 27, "20240225/plot_etapt_photonchic12_truthmatched.svg")
-    pT_plot(filename, 18, "20240225/plot_etapt_eephotonchic12_matched.pdf")
-    pT_plot(filename, 18, "20240225/plot_etapt_eephotonchic12_matched.svg")
+    pT_plot(filename, 0, "20240305/plot_etapt_chic12_truth.pdf")
+    pT_plot(filename, 0, "20240305/plot_etapt_chic12_truth.svg")
+    pT_plot(filename, 3, "20240305/plot_etapt_jpsichic12_truth.pdf")
+    pT_plot(filename, 3, "20240305/plot_etapt_jpsichic12_truth.svg")
+    pT_plot(filename, 6, "20240305/plot_etapt_eejpsichic12_truth.pdf")
+    pT_plot(filename, 6, "20240305/plot_etapt_eejpsichic12_truth.svg")
+    pT_plot(filename, 13, "20240305/plot_etapt_eejpsichic12_matched.pdf")
+    pT_plot(filename, 13, "20240305/plot_etapt_eejpsichic12_matched.svg")
+    pT_plot(filename, 27, "20240305/plot_etapt_photonchic12_truthmatched.pdf")
+    pT_plot(filename, 27, "20240305/plot_etapt_photonchic12_truthmatched.svg")
+    pT_plot(filename, 18, "20240305/plot_etapt_eephotonchic12_matched.pdf")
+    pT_plot(filename, 18, "20240305/plot_etapt_eephotonchic12_matched.svg")
 
     
