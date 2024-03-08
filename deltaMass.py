@@ -26,7 +26,9 @@ def make_common_style(g1,marker,size,color,width=1,fill=0):
     g1.SetFillStyle(fill);
 
 def deltamass_plot(filename1,  option, plotname):
+    #open root file
     rootfile_data = TFile.Open(filename1, "READ");
+    #specify location of the input histogram
     list_data = rootfile_data.Get("analysis-dilepton-photon");
     list_data2 = list_data.Get("output");
      
@@ -124,13 +126,17 @@ def deltamass_plot(filename1,  option, plotname):
         eephoton12_data_deltaM.Scale(1, "width")
     
     if (option == 13 ):
+        #Get histogram information
         data_dileptonphoton = list_data2.FindObject("DileptonPhotonInvMass_cut")
         dileptonphoton_deltaM_jpsi = data_dileptonphoton.FindObject("DeltaMass_Jpsi");
         dileptonphoton_deltaM_jpsi.SetDirectory(0);
+        #Set the marker style and color
         make_common_style(dileptonphoton_deltaM_jpsi, kFullCrossX, 1.0, kPink+7, 1, 0);
         ROOT.SetOwnership(dileptonphoton_deltaM_jpsi, False);
+        #Rebin the points to have less bins
         dileptonphoton_deltaM_jpsi.Rebin(5)
         print(dileptonphoton_deltaM_jpsi.GetNbinsX())
+        #Divide by binwidth to get counts per GeV/c^2
         dileptonphoton_deltaM_jpsi.Scale(1, "width")
 
     if option == 14: 
@@ -238,8 +244,9 @@ def deltamass_plot(filename1,  option, plotname):
         print(eephoton12_data_deltaMjpsi.GetNbinsX())
         eephoton12_data_deltaMjpsi.Scale(1, "width")
 
-
-   
+    #Define minimum and maximum of x and y axis for the histogram by getting the ymax value of the histogram data
+    
+    #Default values
     ymin = 1
     ymax = 100
     if option == 0:
@@ -269,13 +276,22 @@ def deltamass_plot(filename1,  option, plotname):
     if option == 50: 
         ymax = max(eephoton12_data_deltaMjpsi.GetMaximum(), eephoton12_data_M.GetMaximum())
         ymin = 0
-    c1 = TCanvas("DeltaMass","\Delta Mass",0,0,900,900);
+    #Define window size
+    if option == 50: 
+        c1 = TCanvas("DeltaMass","\Delta Mass",0,0,1500,900);
+    else: 
+        c1 = TCanvas("DeltaMass","\Delta Mass",0,0,900,900);
     p1 = c1.cd();
+    #Define histogram size and position in the window
     p1.SetPad(0,0.01,0.99,1);
-    p1.SetMargin(0.15,0.05,0.12,0.05);
+    if option == 50: 
+        p1.SetMargin(0.1,0.05,0.1,0.05);
+    else: 
+        p1.SetMargin(0.15,0.05,0.12,0.05);
     p1.SetTicks(1,1);
     if (option != 50 and option != 26): 
         p1.SetLogy() #log scale
+    #Set x-axis ranges
     xmin = 0
     xmax = 1
     if option ==12:
@@ -296,19 +312,29 @@ def deltamass_plot(filename1,  option, plotname):
     if option == 50:
         xmin =3.4
         xmax = 3.6
-
+    #Define the frame of the histogram 
     frame1 = p1.DrawFrame(xmin, ymin ,xmax, ymax+(ymax*0.2));
+    #Set x-axis title 
     if (option == 23 or option == 26 or option == 13 or option == 33): 
         frame1.GetXaxis().SetTitle("\Deltam + m_{J/\psi}^{PDG} [GeV/c^{2}]");
     elif option == 50:
-        frame1.GetXaxis().SetTitle("m_{\gamma e^{+} e^{-}} [GeV/c^{2}]");
+        frame1.GetXaxis().SetTitle("m [GeV/c^{2}]");
     else:
-        frame1.GetXaxis().SetTitle("\DeltaM [GeV/c^{2}]");
+        frame1.GetXaxis().SetTitle("\Deltam [GeV/c^{2}]");
+    #yaxis title
     frame1.GetYaxis().SetTitle("Counts per GeV/c^{2}");
+    #axis titls size
     frame1.GetXaxis().SetTitleSize(0.045);
     frame1.GetYaxis().SetTitleSize(0.045);
-    frame1.GetXaxis().SetTitleOffset(1.1);
-    frame1.GetYaxis().SetTitleOffset(1.4);
+    
+    #set offset of the title from the axis
+    if option == 50: 
+        frame1.GetYaxis().SetTitleOffset(1.);
+        frame1.GetXaxis().SetTitleOffset(1);
+    else: 
+        frame1.GetYaxis().SetTitleOffset(1.4);
+        frame1.GetXaxis().SetTitleOffset(1.1);
+    #other settings for the axis
     frame1.GetXaxis().SetLabelSize(0.035);
     frame1.GetYaxis().SetLabelSize(0.035);
     frame1.GetYaxis().SetMaxDigits(3);
@@ -364,8 +390,11 @@ def deltamass_plot(filename1,  option, plotname):
         leg.AddEntry(eephoton2_data_deltaM, "\gamma e^{+} e^{-} from \chi_{c2} ","LP");
 
     if option == 13: 
-        leg = TLegend(0.7,0.45,1.0,0.5);
+        #Define legend position
+        leg = TLegend(0.7,0.7,1.0,0.75);
+        #Draw points in histogram
         dileptonphoton_deltaM_jpsi.Draw("Esame")
+        #add entry in legend
         leg.AddEntry(dileptonphoton_deltaM_jpsi, "\gamma e^{+} e^{-}","LP")
     
     if option == 21: 
@@ -418,13 +447,13 @@ def deltamass_plot(filename1,  option, plotname):
         leg.AddEntry(eephoton12_data_deltaMjpsi, "\chi_{c1,c2} \\rightarrow \gamma e^{+} e^{-} matched MC","LP")
     
     if option == 50: 
-        leg = TLegend(0.17, 0.8,0.5,0.9);
+        leg = TLegend(0.15, 0.8,0.4,0.9);
         eephoton12_data_deltaMjpsi.Draw("Esame,hist")
         eephoton12_data_M.Draw("Esame, hist")
         leg.AddEntry(eephoton12_data_deltaMjpsi, "\Deltam_{\gamma e^{+} e^{-}}^{\chi_{c}} + m_{J/\psi}^{PDG} ","LP")
         leg.AddEntry(eephoton12_data_M, "m_{\gamma e^{+} e^{-}}^{\chi_{c}}","LP")
     
-
+    #Settings fo legend
     leg.SetBorderSize(0);
     leg.SetFillColor(kWhite);
     leg.SetFillStyle(0);
@@ -435,49 +464,66 @@ def deltamass_plot(filename1,  option, plotname):
     else:
         leg.SetTextSize(0.03);
     leg.Draw("");
-    ROOT.SetOwnership(leg,False);   
+    ROOT.SetOwnership(leg,False);  
+    #Additional text in the histogram 
     if (option == 13):
-        txt = TPaveText(0.90,0.85,0.9,0.95,"NDC"); 
+        txt = TPaveText(0.92,0.85,0.92,0.95,"NDC"); 
     # elif (option == 33):
     #     txt = TPaveText(0.90,0.7,0.9,0.9,"NDC"); 
     elif ( option == 26):
-        txt = TPaveText(0.4,0.85,0.4,0.95,"NDC");
+        txt = TPaveText(0.42,0.85,0.42,0.95,"NDC");
+    elif ( option == 50):
+        txt = TPaveText(0.93,0.85,0.93,0.95,"NDC");
     else:
-        txt = TPaveText(0.90,0.85,0.9,0.95,"NDC");
+        txt = TPaveText(0.92,0.85,0.92,0.95,"NDC");
     txt.SetFillColor(kWhite);
     txt.SetFillStyle(0);
     txt.SetBorderSize(0);
     txt.SetTextAlign(33);#middle,left
     txt.SetTextFont(42);#helvetica
     txt.SetTextSize(0.03);
-    txt.AddText("ALICE simulation");
+    txt.AddText("Simulation this thesis");
     txt.Draw();
     ROOT.SetOwnership(txt,False);
+    # if (option == 13):
+    #     txt2 = TPaveText(0.845,0.8,0.83,0.925,"NDC");
+    # # elif (option == 33):
+    # #     txt2 = TPaveText(0.845,0.7,0.83,0.825,"NDC");
+    # elif (option == 26):
+    #     txt2 = TPaveText(0.345,0.8,0.33,0.925,"NDC");
+    # elif (option == 50):
+    #     txt2 = TPaveText(0.89,0.8,0.89, 0.925,"NDC");
+    # else: 
+    #     txt2 = TPaveText(0.845,0.8,0.83,0.925,"NDC");
+    # txt2.SetFillColor(kWhite);
+    # txt2.SetFillStyle(0);
+    # txt2.SetBorderSize(0);
+    # txt2.SetTextAlign(33);#middle,left
+    # txt2.SetTextFont(42);#helvetica
+    # txt2.SetTextSize(0.03);
+    # txt2.AddText("this thesis");
+    # txt2.Draw();
+    # ROOT.SetOwnership(txt2,False);
+    # if ( option == 13):
+    #     txt3 = TPaveText(0.9,0.75,0.9,0.90,"NDC");
+    # # elif ( option == 33):
+    # #     txt3 = TPaveText(0.9,0.65,0.9,0.8,"NDC");
+    # elif (  option == 26):
+    #     txt3 = TPaveText(0.4,0.75,0.4,0.9,"NDC");
+    # elif (  option == 50):
+    #     txt3 = TPaveText(0.92,0.75,0.92,0.90,"NDC");
+    # else: 
+    #     txt3 = TPaveText(0.9,0.75,0.9,0.90,"NDC");
     if (option == 13):
-        txt2 = TPaveText(0.845,0.8,0.83,0.925,"NDC");
+        txt3 = TPaveText(0.9,0.8,0.9,0.925,"NDC");
     # elif (option == 33):
     #     txt2 = TPaveText(0.845,0.7,0.83,0.825,"NDC");
     elif (option == 26):
-        txt2 = TPaveText(0.345,0.8,0.33,0.925,"NDC");
+        txt3 = TPaveText(0.4,0.8,0.4,0.925,"NDC");
+    elif (option == 50):
+        txt3 = TPaveText(0.92,0.8,0.92, 0.925,"NDC");
     else: 
-        txt2 = TPaveText(0.845,0.8,0.83,0.925,"NDC");
-    txt2.SetFillColor(kWhite);
-    txt2.SetFillStyle(0);
-    txt2.SetBorderSize(0);
-    txt2.SetTextAlign(33);#middle,left
-    txt2.SetTextFont(42);#helvetica
-    txt2.SetTextSize(0.03);
-    txt2.AddText("this thesis");
-    txt2.Draw();
-    ROOT.SetOwnership(txt2,False);
-    if ( option == 13):
-        txt3 = TPaveText(0.9,0.75,0.9,0.90,"NDC");
-    # elif ( option == 33):
-    #     txt3 = TPaveText(0.9,0.65,0.9,0.8,"NDC");
-    elif (  option == 26):
-        txt3 = TPaveText(0.4,0.75,0.4,0.9,"NDC");
-    else: 
-        txt3 = TPaveText(0.9,0.75,0.9,0.90,"NDC");
+        txt3 = TPaveText(0.9,0.8,0.9,0.925,"NDC");
     txt3.SetFillColor(kWhite);
     txt3.SetFillStyle(0);
     txt3.SetBorderSize(0);
@@ -487,8 +533,19 @@ def deltamass_plot(filename1,  option, plotname):
     txt3.AddText("pp, #sqrt{s} = 13.6TeV");
     txt3.Draw();
     ROOT.SetOwnership(txt3,False);
-    if (option == 12 or option == 50): 
-        txt4 = TPaveText(0.8,0.77,0.87,0.8,"NDC");
+    if (option == 12 ): 
+        txt4 = TPaveText(0.8,0.75,0.87,0.9,"NDC");#txt4 = TPaveText(0.8,0.77,0.87,0.8,"NDC");
+        txt4.SetFillColor(kWhite);
+        txt4.SetFillStyle(0);
+        txt4.SetBorderSize(0);
+        txt4.SetTextAlign(33);#middle,left
+        txt4.SetTextFont(42);#helvetica
+        txt4.SetTextSize(0.03);
+        txt4.AddText("MC matched");
+        txt4.Draw();
+        ROOT.SetOwnership(txt4,False);
+    if option == 50: 
+        txt4 = TPaveText(0.905,0.75,0.905,0.9,"NDC");#txt4 = TPaveText(0.905,0.77,0.905,0.8,"NDC");
         txt4.SetFillColor(kWhite);
         txt4.SetFillStyle(0);
         txt4.SetBorderSize(0);
@@ -499,7 +556,7 @@ def deltamass_plot(filename1,  option, plotname):
         txt4.Draw();
         ROOT.SetOwnership(txt4,False);
     if ( option == 26): 
-        txt4 = TPaveText(0.3,0.77,0.37,0.8,"NDC");
+        txt4 = TPaveText(0.3,0.75,0.37,0.9,"NDC"); #txt4 = TPaveText(0.3,0.77,0.37,0.8,"NDC");
         txt4.SetFillColor(kWhite);
         txt4.SetFillStyle(0);
         txt4.SetBorderSize(0);
@@ -510,7 +567,7 @@ def deltamass_plot(filename1,  option, plotname):
         txt4.Draw();
         ROOT.SetOwnership(txt4,False);
     if (option == 2 or option == 23): 
-        txt4 = TPaveText(0.88,0.77,0.88,0.8,"NDC");
+        txt4 = TPaveText(0.88,0.75,0.88,0.9,"NDC");#txt4 = TPaveText(0.88,0.77,0.88,0.8,"NDC");
         txt4.SetFillColor(kWhite);
         txt4.SetFillStyle(0);
         txt4.SetBorderSize(0);
@@ -520,6 +577,7 @@ def deltamass_plot(filename1,  option, plotname):
         txt4.AddText("MC generated");
         txt4.Draw();
         ROOT.SetOwnership(txt4,False);
+    #arrows for the pdg values of chic1 and chic2
     if option == 23:
         arrow = TArrow( 3.51069, 600000, 3.51069, 250000, 0.02, '|>' )
         arrow.SetFillStyle( 1001 )
@@ -556,28 +614,23 @@ def deltamass_plot(filename1,  option, plotname):
         arrow2.SetFillStyle( 1001 )
         arrow2.Draw()
     
-
+    #save histograms
     c1.Modified();
     c1.Update();
     ROOT.SetOwnership(c1,False);
     c1.SaveAs(plotname);
 
 
-
-
-
 if __name__ == "__main__":
     filename = "AnalysisResults_chicall_20240224.root"
-    deltamass_plot(filename, 23, "20240225/plot_deltamass_eegammachic12_truth.pdf")
-    deltamass_plot(filename, 23, "20240225/plot_deltamass_eegammachic12_truth.svg")
-    deltamass_plot(filename, 26, "20240225/plot_deltamass_eegammachic12_matched.pdf")
-    deltamass_plot(filename, 26, "20240225/plot_deltamass_eegammachic12_matched.svg")
-    deltamass_plot(filename, 13, "20240225/plot_deltamass_eegamma_triple.pdf")
-    deltamass_plot(filename, 13, "20240225/plot_deltamass_eegamma_triple.svg")
-    deltamass_plot(filename, 33, "20240225/plot_deltamass_eegammachic12_triplematched.pdf")
-    deltamass_plot(filename, 33, "20240225/plot_deltamass_eegammachic12_triplematched.svg")
-    deltamass_plot(filename, 50, "20240225/plot_deltamass_mass_eegammachic12_matched.pdf")
-    deltamass_plot(filename, 50, "20240225/plot_deltamass_mass_eegammachic12_matched.svg")
+    deltamass_plot(filename, 23, "20240305/plot_deltamass_eegammachic12_truth.pdf")
+    deltamass_plot(filename, 23, "20240305/plot_deltamass_eegammachic12_truth.svg")
+    deltamass_plot(filename, 26, "20240305/plot_deltamass_eegammachic12_matched.pdf")
+    deltamass_plot(filename, 26, "20240305/plot_deltamass_eegammachic12_matched.svg")
+    deltamass_plot(filename, 13, "20240305/plot_deltamass_eegamma_triple.pdf")
+    deltamass_plot(filename, 13, "20240305/plot_deltamass_eegamma_triple.svg")
+    deltamass_plot(filename, 33, "20240305/plot_deltamass_eegammachic12_triplematched.pdf")
+    deltamass_plot(filename, 33, "20240305/plot_deltamass_eegammachic12_triplematched.svg")
+    deltamass_plot(filename, 50, "20240305/plot_deltamass_mass_eegammachic12_matched.pdf")
+    deltamass_plot(filename, 50, "20240305/plot_deltamass_mass_eegammachic12_matched.svg")
     
-# option 2: delta Mass truth MC for chic1, chic2 and chic12 together
-# option 12: delta Mass matched MC for chic1, chic2 and chic12 together 
