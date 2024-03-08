@@ -71,7 +71,7 @@ def photon_plot(filename1, option, plotname):
         make_common_style(photon3, kFullCircle, 1.0, kSpring+7, 1, 0);#kMagenta+2    #kOrange+7     #kTeal-1
         ROOT.SetOwnership(photon3, False);
         print(photon1.GetNbinsX())
-        arr_rxy3 = np.array([0, 0.1,0.2,0.3,0.4,0.5,0.6,0.8,1.0,1.25,1.5,1.75,2.0,3,4.,5, 6,7, 8, 9,10,11])
+        arr_rxy3 = np.array([0, 0.1,0.2,0.3,0.4,0.5,0.6,0.8,1.0,1.25,1.5,1.75,2.0,2.5,3,3.5,4.,4.5,5, 6,7, 8])
         h1 = TH1D("pT1", "pT1", 20, arr_rxy3) 
         h2 = TH1D("pT2", "pT2", 20, arr_rxy3) 
         h3 = TH1D("pT3", "pT3", 20, arr_rxy3)
@@ -96,6 +96,7 @@ def photon_plot(filename1, option, plotname):
             content_3 = photon3.IntegralAndError(bin_r1_3, bin_r2_3, error_3, "")
             h3.SetBinContent(ir, content_3)
             h3.SetBinError(ir, error_3.value)
+        
     if option == 13: 
         photon1 = list_data2.FindObject("hPt_Photon")
         photon1.SetDirectory(0);
@@ -172,7 +173,7 @@ def photon_plot(filename1, option, plotname):
         frame1.GetYaxis().SetLabelOffset(0.01);
         ROOT.SetOwnership(frame1,False);
 
-        leg = TLegend(0.67,0.65,1.0,0.75);
+        leg = TLegend(0.6,0.65,0.95,0.75);
         photon1.Draw("Esame")
         photon2.Draw("Esame")
         photon3.Draw("Esame")
@@ -193,22 +194,22 @@ def photon_plot(filename1, option, plotname):
         txt.SetTextAlign(33);#middle,left
         txt.SetTextFont(42);#helvetica
         txt.SetTextSize(0.03);
-        txt.AddText("ALICE simulation");
+        txt.AddText("Simulation this thesis");
         txt.Draw();
         ROOT.SetOwnership(txt,False);
 
-        txt2 = TPaveText(0.845,0.8,0.83,0.925,"NDC");
-        txt2.SetFillColor(kWhite);
-        txt2.SetFillStyle(0);
-        txt2.SetBorderSize(0);
-        txt2.SetTextAlign(33);#middle,left
-        txt2.SetTextFont(42);#helvetica
-        txt2.SetTextSize(0.03);
-        txt2.AddText("this thesis");
-        txt2.Draw();
-        ROOT.SetOwnership(txt2,False);
+        # txt2 = TPaveText(0.845,0.8,0.83,0.925,"NDC");
+        # txt2.SetFillColor(kWhite);
+        # txt2.SetFillStyle(0);
+        # txt2.SetBorderSize(0);
+        # txt2.SetTextAlign(33);#middle,left
+        # txt2.SetTextFont(42);#helvetica
+        # txt2.SetTextSize(0.03);
+        # txt2.AddText("this thesis");
+        # txt2.Draw();
+        # ROOT.SetOwnership(txt2,False);
 
-        txt3 = TPaveText(0.9,0.75,0.9,0.90,"NDC");
+        txt3 = TPaveText(0.875,0.8,0.86,0.925,"NDC"); #txt3 = TPaveText(0.9,0.75,0.9,0.90,"NDC");
         txt3.SetFillColor(kWhite);
         txt3.SetFillStyle(0);
         txt3.SetBorderSize(0);
@@ -250,6 +251,8 @@ def photon_plot(filename1, option, plotname):
         y = h1eff.GetYaxis()
         if option == 1: 
             h1eff.Divide(h2, h1, 100, 1, option="B")
+            make_common_style(h1eff, kFullCircle, 1.0, kGreen+1, 1, 0);#kMagenta+2    #kOrange+7     #kTeal-1
+            ROOT.SetOwnership(h1eff, False);
             y.SetTitle("conversion probability [%]")
             h1eff.SetAxisRange(8,12.5,"y")
         if option == 2: 
@@ -278,43 +281,47 @@ def photon_plot(filename1, option, plotname):
         x.SetLabelFont(42)
         x.SetLabelSize(0.035)
         
-            #h1eff.SetLineColor(kViolet-4)
         h1eff.SetMarkerStyle(kFullCircle)
         if option != 13:
             h1eff.GetXaxis().SetRangeUser(0., 4.5)
+            h1eff.Draw("Esame")
         else:
             h1eff.GetXaxis().SetRangeUser(0., 4.5)
-        h1eff.Draw("Esame")
+            h1eff.Draw("Esame")
         if option == 13:
             txt = TPaveText(0.90,0.55,0.9,0.65,"NDC");
         else:
-            txt = TPaveText(0.2,0.85,0.4,0.95,"NDC");
+            txt = TPaveText(0.90,0.85,0.9,0.95,"NDC");
         txt.SetFillColor(kWhite);
         txt.SetFillStyle(0);
         txt.SetBorderSize(0);
         txt.SetTextAlign(33);#middle,left
         txt.SetTextFont(42);#helvetica
         txt.SetTextSize(0.03);
-        txt.AddText("ALICE simulation");
+        txt.AddText("Simulation this thesis");
         txt.Draw();
         ROOT.SetOwnership(txt,False);
+        # if option == 13:
+        #     txt2 = TPaveText(0.845,0.5,0.83,0.625,"NDC");
+        # else:
+        #     txt2 = TPaveText(0.2,0.8,0.35,0.925,"NDC");
+        # txt2.SetFillColor(kWhite);
+        # txt2.SetFillStyle(0);
+        # txt2.SetBorderSize(0);
+        # txt2.SetTextAlign(33);#middle,left
+        # txt2.SetTextFont(42);#helvetica
+        # txt2.SetTextSize(0.03);
+        # txt2.AddText("this thesis");
+        # txt2.Draw();
+        # ROOT.SetOwnership(txt2,False);
         if option == 13:
-            txt2 = TPaveText(0.845,0.5,0.83,0.625,"NDC");
+            txt3 = TPaveText(0.845,0.5,0.83,0.625,"NDC");
         else:
-            txt2 = TPaveText(0.2,0.8,0.35,0.925,"NDC");
-        txt2.SetFillColor(kWhite);
-        txt2.SetFillStyle(0);
-        txt2.SetBorderSize(0);
-        txt2.SetTextAlign(33);#middle,left
-        txt2.SetTextFont(42);#helvetica
-        txt2.SetTextSize(0.03);
-        txt2.AddText("this thesis");
-        txt2.Draw();
-        ROOT.SetOwnership(txt2,False);
-        if option == 13:
-            txt3 = TPaveText(0.9,0.45,0.9,0.60,"NDC");
-        else:
-            txt3 = TPaveText(0.2,0.75,0.4,0.90,"NDC");
+            txt3 = TPaveText(0.875,0.8,0.86,0.925,"NDC");
+        # if option == 13:
+        #     txt3 = TPaveText(0.9,0.45,0.9,0.60,"NDC");
+        # else:
+        #     txt3 = TPaveText(0.2,0.75,0.4,0.90,"NDC");
         txt3.SetFillColor(kWhite);
         txt3.SetFillStyle(0);
         txt3.SetBorderSize(0);
@@ -360,13 +367,15 @@ def photon_plot(filename1, option, plotname):
             conversionall.SetMarkerStyle(20)
             conversionall.GetZaxis().SetTitle("N_{\gamma}")
             conversionall.GetXaxis().SetTitle("V_{z} [cm]")
-            # conversionall.GetZaxis().SetTitleOffset(0.2)
+            conversionall.GetYaxis().SetTitle("R_{xy} [cm]")
+            conversionall.GetZaxis().SetTitleOffset(1.35)
             conversionall.SetStats(0)
             conversionall.Draw("COLZ")
         if option == 5:
             conversion.SetMarkerStyle(20)
             conversion.GetZaxis().SetTitle("N_{\gamma}")
             conversion.GetXaxis().SetTitle("V_{z} [cm]")
+            conversion.GetYaxis().SetTitle("R_{xy} [cm]")
             conversion.GetZaxis().SetTitleOffset(1.35)
             conversion.SetStats(0)
             conversion.Draw("COLZ")
@@ -374,40 +383,45 @@ def photon_plot(filename1, option, plotname):
             conversion_mc.SetMarkerStyle(20)
             conversion_mc.GetZaxis().SetTitle("N_{\gamma}")
             conversion_mc.GetXaxis().SetTitle("V_{z} [cm]")
+            conversion_mc.GetYaxis().SetTitle("R_{xy} [cm]")
             conversion_mc.GetZaxis().SetTitleOffset(1.35)
             conversion_mc.SetStats(0)
             conversion_mc.Draw("COLZ")
         if option == 6: 
-            txt = TPaveText(0.08,0.25,0.38,0.25,"NDC");
+            txt = TPaveText(0.1,0.22,0.42,0.22,"NDC");
         else: 
-            txt = TPaveText(0.1,0.25,0.4,0.25,"NDC");
+            txt = TPaveText(0.1,0.21,0.42,0.21,"NDC");
         txt.SetFillColor(kWhite);
         txt.SetFillStyle(0);
         txt.SetBorderSize(0);
         txt.SetTextAlign(33);#middle,left
         txt.SetTextFont(42);#helvetica
         txt.SetTextSize(0.03);
-        txt.AddText("ALICE simulation");
+        txt.AddText("Simulation this thesis");
         txt.Draw();
         ROOT.SetOwnership(txt,False);
 
-        if option == 6: 
-            txt2 = TPaveText(0.14,0.22,0.33,0.22,"NDC");
-        else: 
-            txt2 = TPaveText(0.15,0.21,0.34,0.21,"NDC");
-        txt2.SetFillColor(kWhite);
-        txt2.SetFillStyle(0);
-        txt2.SetBorderSize(0);
-        txt2.SetTextAlign(33);#middle,left
-        txt2.SetTextFont(42);#helvetica
-        txt2.SetTextSize(0.03);
-        txt2.AddText("this thesis");
-        txt2.Draw();
-        ROOT.SetOwnership(txt2,False);
+        # if option == 6: 
+        #     txt2 = TPaveText(0.14,0.22,0.33,0.22,"NDC");
+        # else: 
+        #     txt2 = TPaveText(0.15,0.21,0.34,0.21,"NDC");
+        # txt2.SetFillColor(kWhite);
+        # txt2.SetFillStyle(0);
+        # txt2.SetBorderSize(0);
+        # txt2.SetTextAlign(33);#middle,left
+        # txt2.SetTextFont(42);#helvetica
+        # txt2.SetTextSize(0.03);
+        # txt2.AddText("this thesis");
+        # txt2.Draw();
+        # ROOT.SetOwnership(txt2,False);
 
+        # if option == 6: 
+        #     txt3 = TPaveText(0.09,0.19,0.39,0.19,"NDC");
+        # else:
+        #     txt3 = TPaveText(0.1,0.17,0.4,0.17,"NDC");
         if option == 6: 
             txt3 = TPaveText(0.09,0.19,0.39,0.19,"NDC");
-        else:
+        else: 
             txt3 = TPaveText(0.1,0.17,0.4,0.17,"NDC");
         txt3.SetFillColor(kWhite);
         txt3.SetFillStyle(0);
@@ -459,7 +473,7 @@ def photon_plot(filename1, option, plotname):
             txt5.SetTextAlign(33);#middle,left
             txt5.SetTextFont(42);#helvetica
             txt5.SetTextSize(0.03);
-            txt5.AddText("(MC truth coordinates)");
+            txt5.AddText("(MC true coordinates)");
             txt5.Draw();
             ROOT.SetOwnership(txt5,False);
         if option == 4 or option == 5: 
@@ -493,6 +507,11 @@ def photon_plot(filename1, option, plotname):
             line5.SetLineWidth(2)
             line5.SetLineColor(2)
             line5.Draw()
+            line15 = TLine( -40, 28.5, 40, 28.5)
+            line15.SetLineStyle(1)
+            line15.SetLineWidth(2)
+            line15.SetLineColor(2)
+            line15.Draw()
             line6 = TLine( -47, 34.385, 47, 34.385)
             line6.SetLineStyle(1)
             line6.SetLineWidth(2)
@@ -503,6 +522,11 @@ def photon_plot(filename1, option, plotname):
             line7.SetLineWidth(2)
             line7.SetLineColor(2)
             line7.Draw()
+            line17 = TLine( -55, 43.3, 55, 43.3)
+            line17.SetLineStyle(1)
+            line17.SetLineWidth(2)
+            line17.SetLineColor(2)
+            line17.Draw()
             line8 = TLine( -60, 45.5, 60, 45.5)
             line8.SetLineStyle(1)
             line8.SetLineWidth(2)
@@ -529,12 +553,12 @@ def photon_plot(filename1, option, plotname):
             line12.SetLineColor(2)
             line12.Draw()
         if option == 6:
-            line = TLine( -15, 1.9, 15, 1.9)
+            line = TLine( -20, 1.9, 20, 1.9)
             line.SetLineStyle( 1 )
             line.SetLineWidth(2)
             line.SetLineColor(2)
             line.Draw()
-            line1 = TLine( -15, 2.455, 15,2.455)
+            line1 = TLine( -20, 2.455, 20, 2.455)
             line1.SetLineStyle( 1 )
             line1.SetLineWidth(2)
             line1.SetLineColor(2)
@@ -559,6 +583,11 @@ def photon_plot(filename1, option, plotname):
             line5.SetLineWidth(2)
             line5.SetLineColor(2)
             line5.Draw()
+            line15 = TLine( -50, 28.5, 50, 28.5)
+            line15.SetLineStyle(1)
+            line15.SetLineWidth(2)
+            line15.SetLineColor(2)
+            line15.Draw()
             line6 = TLine( -55, 34.385, 55, 34.385)
             line6.SetLineStyle(1)
             line6.SetLineWidth(2)
@@ -569,6 +598,11 @@ def photon_plot(filename1, option, plotname):
             line7.SetLineWidth(2)
             line7.SetLineColor(2)
             line7.Draw()
+            line17 = TLine( -65, 43.3, 65, 43.3)
+            line17.SetLineStyle(1)
+            line17.SetLineWidth(2)
+            line17.SetLineColor(2)
+            line17.Draw()
             line8 = TLine( -70, 45.5, 70, 45.5)
             line8.SetLineStyle(1)
             line8.SetLineWidth(2)
@@ -610,19 +644,19 @@ def photon_plot(filename1, option, plotname):
 
 
 if __name__ == "__main__":
-    filename = "AnalysisResults_chic_20240216.root"
+    filename = "AnalysisResults_chicall_20240224.root"
     #photon_plot(filename,3, "20240215/plot_totalefficiency_photons.pdf")
-    # photon_plot(filename,0, "20240225/plot_pT_photons.svg")
-    # photon_plot(filename,0, "20240225/plot_pT_photons.pdf")
-    # photon_plot(filename,1, "20240225/plot_photon_conversionprobability.svg")
-    # photon_plot(filename,1, "20240225/plot_photon_conversionprobability.pdf")
+    photon_plot(filename,0, "20240305/plot_pT_photons.svg")
+    photon_plot(filename,0, "20240305/plot_pT_photons.pdf")
+    photon_plot(filename,1, "20240305/plot_photon_conversionprobability.svg")
+    photon_plot(filename,1, "20240305/plot_photon_conversionprobability.pdf")
     # photon_plot(filename,2, "20240225/plot_photon_.svg")
     # photon_plot(filename,2, "20240225/plot_.pdf")
     # photon_plot(filename,3, "20240225/plot_photon_reconstructionefficiency.svg")
     # photon_plot(filename,3, "20240225/plot_photon_reconstructionefficiency.pdf")
-    photon_plot(filename,4, "20240225/plot_photonconversion_mctruth.png")
-    photon_plot(filename,4, "20240225/plot_photonconversion_mctruth.pdf")
-    photon_plot(filename,5, "20240225/plot_photonconversion_reconstructed.svg")
-    photon_plot(filename,5, "20240225/plot_photonconversion_reconstructed.pdf")
-    photon_plot(filename,6, "20240225/plot_photonconversion_mcmatched.svg")
-    photon_plot(filename,6, "20240225/plot_photonconversion_mcmatched.pdf")
+    photon_plot(filename,4, "20240305/plot_photonconversion_mctruth.png")
+    photon_plot(filename,4, "20240305/plot_photonconversion_mctruth.pdf")
+    photon_plot(filename,5, "20240305/plot_photonconversion_reconstructed.svg")
+    photon_plot(filename,5, "20240305/plot_photonconversion_reconstructed.pdf")
+    photon_plot(filename,6, "20240305/plot_photonconversion_mcmatched.svg")
+    photon_plot(filename,6, "20240305/plot_photonconversion_mcmatched.pdf")
