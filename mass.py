@@ -186,7 +186,7 @@ def mass_plot(filename1, option, plotname):
         background.Rebin(5)
         background.Scale(1, "width")
     
-    if option == 21: 
+    if option == 21 or option == 25: 
         pm_ee = list_same2.FindObject("PairsBarrelSEPM_jpsiO2MCdebugCuts2")
         pp_ee = list_same2.FindObject("PairsBarrelSEPP_jpsiO2MCdebugCuts2")
         mm_ee = list_same2.FindObject("PairsBarrelSEMM_jpsiO2MCdebugCuts2")
@@ -261,6 +261,12 @@ def mass_plot(filename1, option, plotname):
         # outfile.WriteTObject(eejpsi_cut_mass);
         # outfile.WriteTObject(eejpsi_cut_data_mass)
         # outfile.Close();
+    if option == 25:
+        ratio = eejpsi_cut_mass.Clone()
+        ratio.Sumw2()
+        ratio.Divide(ee_withoutbackground, eejpsi_cut_mass, 1, 1, option = "B")
+        make_common_style(ratio, kFullCrossX, 1.0, kBlack, 1, 0);
+        ROOT.SetOwnership(ratio, False);
 
     if option == 0: 
         ymax = eejpsi_cut_data_mass.GetMaximum()*1.1
@@ -272,13 +278,13 @@ def mass_plot(filename1, option, plotname):
         ymax = eephoton12_cut_data_mass.GetMaximum()
         ymin = eephoton12_cut_data_mass.GetMinimum()
     if option == 3:
-        ymax = eephoton_cut_data_mass.GetMaximum()
-        ymin = 99999
+        ymax = eephoton_cut_data_mass.GetMaximum()*1.25
+        ymin = 300000
     if option == 4: 
-        ymax = eephoton_cut_data_mass.GetMaximum()*4
+        ymax = eephoton_cut_data_mass.GetMaximum()*5
         ymin = 800
     if option == 5:
-        ymax = eephoton12_cut_data_mass.GetMaximum()+1000
+        ymax = eephoton12_cut_data_mass.GetMaximum()+3500
         ymin = min(eephoton1_cut_data_mass.GetMinimum(), eephoton2_cut_data_mass.GetMinimum())
     if option == 10: 
         ymax = eejpsi_cut_mass.GetMaximum()*2
@@ -297,28 +303,36 @@ def mass_plot(filename1, option, plotname):
         ymax =max(ee_cut_mass.GetMaximum(), eejpsi_cut_mass.GetMaximum())
         ymin = min(ee_cut_mass.GetMinimum(), eejpsi_cut_mass.GetMinimum())
     if option== 20 :
-        ymax = max(ee_pm_mass.GetMaximum(), background.GetMaximum())
+        ymax = max(ee_pm_mass.GetMaximum(), background.GetMaximum())+1000000
         ymin = min(ee_pm_mass.GetMinimum(), background.GetMinimum())
     if option == 22:
         ymax = max(ee_pm_mass.GetMaximum(), background.GetMaximum())
         ymin = min(ee_pm_mass.GetMinimum(), background.GetMinimum()) +754000
     if option == 21:
-        ymax = max(ee_withoutbackground.GetMaximum(), eejpsi_cut_mass.GetMaximum())
+        ymax = max(ee_withoutbackground.GetMaximum(), eejpsi_cut_mass.GetMaximum())+1000000
         ymin = min(ee_withoutbackground.GetMinimum(), eejpsi_cut_mass.GetMinimum()) + 50000
+    if option == 25: 
+        ymax = 1.5
+        ymin = 0.7
     if option == 30: 
         ymax = eephoton12_cut_mc_mass.GetMaximum()*2
         ymin = 999999
 
-    
-    c1 = TCanvas("pT_distribution","pT distribution",0,0,900,900);
+    if option == 20 or option == 0 or option == 10 or option == 21: 
+        c1 = TCanvas("pT_distribution","pT distribution",0,0,1500,900);
+    else: 
+        c1 = TCanvas("pT_distribution","pT distribution",0,0,900,900);
     p1 = c1.cd();
     p1.SetPad(0,0.01,1,1);
-    p1.SetMargin(0.15,0.05,0.12,0.05);
+    if option == 20 or option == 0 or option == 10 or option == 21: 
+        p1.SetMargin(0.1,0.05,0.12,0.05);
+    else: 
+        p1.SetMargin(0.15,0.05,0.12,0.05);
     p1.SetTicks(1,1);
     if option == 10 or option == 11 or option == 4 or option == 30 or option == 3: 
         p1.SetLogy()
     #p1.SetLogy() #log scale
-    if ymax <10:
+    if ymax <10 and option != 25:
         ymax += 1
     if (ymax >9 and ymax <100):
         ymax += 10
@@ -371,7 +385,7 @@ def mass_plot(filename1, option, plotname):
     if option == 10: 
         xmin = 2
         xmax = 3.15
-    if option == 11 or option == 15 or option == 21 :
+    if option == 11 or option == 15 or option == 21 or option == 25:
         xmin = 2.5        
         xmax = 3.2
     if option == 12: 
@@ -393,21 +407,29 @@ def mass_plot(filename1, option, plotname):
     
     
     frame1 = p1.DrawFrame(xmin, ymin, xmax, ymax);
-    frame1.GetYaxis().SetTitle("Counts per GeV/c^{2}");
+    if option == 25: 
+        frame1.GetYaxis().SetTitle("ratio \\frac{MC matched J/\psi \\rightarrow e^{+}e^{-}}{e^{+}e^{-}-(e^{+}e^{+}+e^{-}e^{-})}");
+    else: 
+        frame1.GetYaxis().SetTitle("Counts per GeV/c^{2}");
     frame1.GetXaxis().SetTitleSize(0.045);
     frame1.GetYaxis().SetTitleSize(0.045);
-    frame1.GetXaxis().SetTitleOffset(0.9);
-    frame1.GetYaxis().SetTitleOffset(1.4);
+    frame1.GetXaxis().SetTitleOffset(1.1);
+    if option == 20 or option == 0 or option == 10 or option == 21: 
+        frame1.GetYaxis().SetTitleOffset(1);
+    else: 
+        frame1.GetYaxis().SetTitleOffset(1.4);
     frame1.GetXaxis().SetLabelSize(0.035);
     frame1.GetYaxis().SetLabelSize(0.035);
     frame1.GetYaxis().SetMaxDigits(3);
     frame1.GetXaxis().SetLabelOffset(0.01);
     frame1.GetYaxis().SetLabelOffset(0.01);
+    # if option == 5: 
+    #     eephoton12_cut_data_mass.SetNdivisions(510,"x")
     
 
     #h1data.SetMarkerStyle(kFullCircle)
     if option == 0:
-        leg = TLegend(0.2,0.4,0.5,0.5);
+        leg = TLegend(0.125,0.7,0.34,0.75);
         eejpsi_cut_data_mass.Draw("Esame,hist")
         leg.AddEntry(eejpsi_cut_data_mass, "J/\psi \\rightarrow e^{+} e^{-}", "LP")
         frame1.GetXaxis().SetTitle("m_{e^{+}e^{-}} [GeV/c^{2}]");
@@ -429,14 +451,14 @@ def mass_plot(filename1, option, plotname):
         leg.AddEntry(eephoton_cut_data_mass, "\gamma e^{+} e^{-} ", "LP")
         frame1.GetXaxis().SetTitle("m_{\gamma e^{+}e^{-}} [GeV/c^{2}]");
     if option == 4: 
-        leg = TLegend(0.2,0.85,0.5,0.9);
+        leg = TLegend(0.17,0.825,0.47,0.91);
         eephoton_cut_data_mass.Draw("Esame")
         eephoton12_cut_data_mass.Draw("Esame, hist")
         leg.AddEntry(eephoton_cut_data_mass, "\gamma e^{+} e^{-}", "LP")
         leg.AddEntry(eephoton12_cut_data_mass, "\chi_{c1,c2} \\rightarrow \gamma e^{+} e^{-} MC matched", "LP")  
         frame1.GetXaxis().SetTitle("m_{\gamma e^{+}e^{-}} [GeV/c^{2}]");
     if option == 5:
-        leg = TLegend(0.17,0.82,0.5,0.92);
+        leg = TLegend(0.17,0.8,0.5,0.91);
         eephoton12_cut_data_mass.Draw("Esame,hist")
         eephoton1_cut_data_mass.Draw("Esame,hist")
         eephoton2_cut_data_mass.Draw("Esame,hist")
@@ -445,7 +467,7 @@ def mass_plot(filename1, option, plotname):
         leg.AddEntry(eephoton2_cut_data_mass, "\chi_{c2} \\rightarrow \gamma e^{+} e^{-}", "LP")
         frame1.GetXaxis().SetTitle("m_{\gamma e^{+}e^{-}} [GeV/c^{2}]");
     if option == 10:
-        leg = TLegend(0.2,0.7,0.5,0.75);
+        leg = TLegend(0.13,0.7,0.3,0.75);
         eejpsi_cut_mass.Draw("Esame,hist")
         leg.AddEntry(eejpsi_cut_mass, "J/\psi \\rightarrow e^{+} e^{-}", "LP")
         frame1.GetXaxis().SetTitle("m_{e^{+}e^{-}} [GeV/c^{2}]");
@@ -479,7 +501,7 @@ def mass_plot(filename1, option, plotname):
         leg.AddEntry(eejpsi_cut_mass, "e^{+} e^{-} from J/\psi MC matched", "LP")
         frame1.GetXaxis().SetTitle("m_{e^{+}e^{-}} [GeV/c^{2}]");
     if option == 20:
-        leg = TLegend(0.2,0.7,0.5,0.75);
+        leg = TLegend(0.15,0.7,0.3,0.8);
         # ee_cut_mass.Draw("Esame,hist")
         ee_pm_mass.Draw("Esame")
         background.Draw("Esame")
@@ -488,11 +510,11 @@ def mass_plot(filename1, option, plotname):
         leg.AddEntry(background, "e^{+} e^{+} and e^{-} e^{-}", "LP")
         frame1.GetXaxis().SetTitle("m_{e^{+}e^{-}} [GeV/c^{2}]");
         line = TLine( 2.5, ymax, 2.5, ymin)
-        line.SetLineStyle( 1 )
+        line.SetLineStyle( 2 )
         line.SetLineColor(13)
         line.Draw()
         line2 = TLine( 3.3, ymax, 3.3, ymin)
-        line2.SetLineStyle(1)
+        line2.SetLineStyle(2)
         line2.SetLineColor(13)
         line2.Draw()
     if option== 22:
@@ -511,11 +533,16 @@ def mass_plot(filename1, option, plotname):
         # line2.SetLineStyle(1001 )
         #line2.Draw()
     if option == 21: 
-        leg = TLegend(0.2,0.65,0.5,0.75);
+        leg = TLegend(0.13,0.65,0.35,0.75);
         ee_withoutbackground.Draw("Esame,hist")
         eejpsi_cut_mass.Draw("Esame,hist")
         leg.AddEntry(ee_withoutbackground, "e^{+} e^{-} minus e^{+} e^{+} and e^{-} e^{-}", "LP")
         leg.AddEntry(eejpsi_cut_mass, "J/\psi \\rightarrow e^{+} e^{-} MC matched", "LP")
+        frame1.GetXaxis().SetTitle("m_{e^{+}e^{-}} [GeV/c^{2}]");
+
+    if option == 25: 
+        leg = TLegend(0.2,0.65,0.5,0.75);
+        ratio.Draw("Esame,hist")
         frame1.GetXaxis().SetTitle("m_{e^{+}e^{-}} [GeV/c^{2}]");
     
     if option == 30: 
@@ -543,46 +570,69 @@ def mass_plot(filename1, option, plotname):
     ROOT.SetOwnership(leg,False);    
     # if option == 4:
     #     txt = TPaveText(0.90,0.65,0.9,0.75,"NDC");
-    if option == 3 or option == 5 or option == 4 : 
+    if option == 3 or option == 5 or option == 4 or option == 25: 
         txt = TPaveText(0.90,0.85,0.9,0.95,"NDC");
-    elif option == 30: 
-        txt = TPaveText(0.1,0.85,0.4,0.95,"NDC");
+    elif option == 30 : 
+        txt = TPaveText(0.12,0.85,0.45,0.95,"NDC");
+    elif option == 20: 
+        txt = TPaveText(0.92,0.85,0.92,0.95,"NDC");
+    elif option == 0 or option == 10 or option == 21:
+        txt = TPaveText(0.1,0.85,0.29,0.95,"NDC");
     else:
-        txt = TPaveText(0.2,0.85,0.4,0.95,"NDC");
+        txt = TPaveText(0.2,0.85,0.45,0.95,"NDC");
     txt.SetFillColor(kWhite);
     txt.SetFillStyle(0);
     txt.SetBorderSize(0);
     txt.SetTextAlign(33);#middle,left
     txt.SetTextFont(42);#helvetica
     txt.SetTextSize(0.03);
-    txt.AddText("ALICE simulation");
+    txt.AddText("Simulation this thesis");
     txt.Draw();
     ROOT.SetOwnership(txt,False);
     # if option == 4:
     #     txt2 = TPaveText(0.845,0.6,0.83,0.725,"NDC");
-    if option == 3 or option == 5 or option == 4: 
-        txt2 = TPaveText(0.845,0.8,0.83,0.925,"NDC");
-    elif option == 30: 
-        txt2 = TPaveText(0.1,0.8,0.35,0.925,"NDC");
+    # if option == 3 or option == 5 or option == 4 or option == 25: 
+    #     txt2 = TPaveText(0.845,0.8,0.83,0.925,"NDC");
+    # elif option == 30: 
+    #     txt2 = TPaveText(0.1,0.8,0.35,0.925,"NDC");
+    # elif option == 20: 
+    #     txt2 = TPaveText(0.89,0.8,0.89, 0.925,"NDC");
+    # elif option == 0 or option == 10: 
+    #     txt2 = TPaveText(0.1,0.8,0.27, 0.925,"NDC");
+    # else:
+    #     txt2 = TPaveText(0.2,0.8,0.35,0.925,"NDC");
+    # txt2.SetFillColor(kWhite);
+    # txt2.SetFillStyle(0);
+    # txt2.SetBorderSize(0);
+    # txt2.SetTextAlign(33);#middle,left
+    # txt2.SetTextFont(42);#helvetica
+    # txt2.SetTextSize(0.03);
+    # txt2.AddText("this thesis");
+    # txt2.Draw();
+    # ROOT.SetOwnership(txt2,False);
+    # # if option == 4:
+    # #     txt3 = TPaveText(0.9,0.55,0.9,0.70,"NDC");
+    # if option == 3 or option == 5 or option == 4 or option == 25: 
+    #     txt3 = TPaveText(0.9,0.75,0.9,0.90,"NDC");
+    # elif option == 30: 
+    #     txt3 = TPaveText(0.1,0.75,0.4,0.90,"NDC");
+    # elif option == 20 : 
+    #     txt3 = TPaveText(0.92,0.75,0.92,0.90,"NDC");
+    # elif option == 0 or option == 10: 
+    #     txt3 = TPaveText(0.1,0.75,0.3,0.90,"NDC");
+    # else:
+    #     txt3 = TPaveText(0.2,0.75,0.4,0.90,"NDC");
+    
+    if option == 3 or option == 5 or option == 4 or option == 25: 
+        txt3 = TPaveText(0.88,0.8,0.88,0.925,"NDC");
+    elif option == 30 :
+        txt3 = TPaveText(0.125,0.8,0.425,0.925,"NDC");
+    elif option == 20: 
+        txt3 = TPaveText(0.905,0.8,0.905, 0.925,"NDC");
+    elif option == 0 or option == 10 or option == 21: 
+        txt3 = TPaveText(0.1,0.8,0.275, 0.925,"NDC");
     else:
-        txt2 = TPaveText(0.2,0.8,0.35,0.925,"NDC");
-    txt2.SetFillColor(kWhite);
-    txt2.SetFillStyle(0);
-    txt2.SetBorderSize(0);
-    txt2.SetTextAlign(33);#middle,left
-    txt2.SetTextFont(42);#helvetica
-    txt2.SetTextSize(0.03);
-    txt2.AddText("this thesis");
-    txt2.Draw();
-    ROOT.SetOwnership(txt2,False);
-    # if option == 4:
-    #     txt3 = TPaveText(0.9,0.55,0.9,0.70,"NDC");
-    if option == 3 or option == 5 or option == 4: 
-        txt3 = TPaveText(0.9,0.75,0.9,0.90,"NDC");
-    elif option == 30: 
-        txt3 = TPaveText(0.1,0.75,0.4,0.90,"NDC");
-    else:
-        txt3 = TPaveText(0.2,0.75,0.4,0.90,"NDC");
+        txt3 = TPaveText(0.2,0.8,0.425,0.925,"NDC");
     txt3.SetFillColor(kWhite);
     txt3.SetFillStyle(0);
     txt3.SetBorderSize(0);
@@ -593,8 +643,8 @@ def mass_plot(filename1, option, plotname):
     txt3.Draw();
     ROOT.SetOwnership(txt3,False);
 
-    if (option == 0 or option == 1 or option == 2 ):
-        txt5 = TPaveText(0.2,0.77,0.37,0.8,"NDC");
+    if (option == 1 or option == 2 ):
+        txt5 = TPaveText(0.2,0.75,0.4,0.9,"NDC");
         txt5.SetFillColor(kWhite);
         txt5.SetFillStyle(0);
         txt5.SetBorderSize(0);
@@ -602,10 +652,32 @@ def mass_plot(filename1, option, plotname):
         txt5.SetTextFont(42);#helvetica
         txt5.SetTextSize(0.03);
         txt5.AddText("MC matched");
+        txt5.Draw();
+        ROOT.SetOwnership(txt5,False);
+    if option == 0: 
+        txt5 = TPaveText(0.15,0.75,0.25,0.9,"NDC");
+        txt5.SetFillColor(kWhite);
+        txt5.SetFillStyle(0);
+        txt5.SetBorderSize(0);
+        txt5.SetTextAlign(33);#middle,left
+        txt5.SetTextFont(42);#helvetica
+        txt5.SetTextSize(0.03);
+        txt5.AddText("MC matched");
+        txt5.Draw();
+        ROOT.SetOwnership(txt5,False);
+    if option == 10: 
+        txt5 = TPaveText(0.1,0.75,0.26,0.9,"NDC");
+        txt5.SetFillColor(kWhite);
+        txt5.SetFillStyle(0);
+        txt5.SetBorderSize(0);
+        txt5.SetTextAlign(33);#middle,left
+        txt5.SetTextFont(42);#helvetica
+        txt5.SetTextSize(0.03);
+        txt5.AddText("MC generated");
         txt5.Draw();
         ROOT.SetOwnership(txt5,False);
     if option == 5:
-        txt5 = TPaveText(0.7,0.77,0.875,0.8,"NDC");
+        txt5 = TPaveText(0.7,0.75,0.865,0.9,"NDC");
         txt5.SetFillColor(kWhite);
         txt5.SetFillStyle(0);
         txt5.SetBorderSize(0);
@@ -615,19 +687,8 @@ def mass_plot(filename1, option, plotname):
         txt5.AddText("MC matched");
         txt5.Draw();
         ROOT.SetOwnership(txt5,False);
-    if (option ==10 ):
-        txt4 = TPaveText(0.3,0.77,0.38,0.8,"NDC");
-        txt4.SetFillColor(kWhite);
-        txt4.SetFillStyle(0);
-        txt4.SetBorderSize(0);
-        txt4.SetTextAlign(33);#middle,left
-        txt4.SetTextFont(42);#helvetica
-        txt4.SetTextSize(0.03);
-        txt4.AddText("MC generated");
-        txt4.Draw();
-        ROOT.SetOwnership(txt4,False);
     if (option == 30):
-        txt4 = TPaveText(0.3,0.77,0.38,0.8,"NDC");
+        txt4 = TPaveText(0.35,0.75,0.395,0.9,"NDC");
         txt4.SetFillColor(kWhite);
         txt4.SetFillStyle(0);
         txt4.SetBorderSize(0);
@@ -647,6 +708,9 @@ def mass_plot(filename1, option, plotname):
     # txt6.AddText("|\eta| < 0.9");
     # txt6.Draw();
     # ROOT.SetOwnership(txt6,False);
+
+
+    #Draw arrows at the locations of J/psi, chic1 and chic2
     if option == 11:
         arrow = TArrow( 3.0969, 5000, 3.0969, ymin, 0.02, '|>' )
         arrow.SetFillStyle( 1001 )
@@ -656,15 +720,19 @@ def mass_plot(filename1, option, plotname):
         arrow.SetFillStyle( 1001 )
         arrow.Draw()
     elif option == 0:
-        arrow = TArrow( 3.0969, 500000, 3.0969, ymin, 0.02, '|>' )
+        arrow = TArrow( 3.0969, 1000000, 3.0969, ymin, 0.02, '|>' )
         arrow.SetFillStyle( 1001 )
         arrow.Draw()
     elif option == 21:
         arrow = TArrow( 3.0969, 500000, 3.0969, ymin, 0.02, '|>' )
         arrow.SetFillStyle( 1001 )
         arrow.Draw()
+    elif option == 25:
+        arrow = TArrow( 3.0969, 0.8, 3.0969, ymin, 0.02, '|>' )
+        arrow.SetFillStyle( 1001 )
+        arrow.Draw()
     elif option == 20:
-        arrow = TArrow( 3.0969, 400000, 3.0969, ymin, 0.02, '|>' )
+        arrow = TArrow( 3.0969, 1000000, 3.0969, ymin, 0.02, '|>' )
         arrow.SetFillStyle( 1001 )
         arrow.Draw()
     elif option == 22:
@@ -679,10 +747,10 @@ def mass_plot(filename1, option, plotname):
         arrow2.SetFillStyle( 1001 )
         arrow2.Draw()
     elif option == 3:
-        arrow = TArrow( 3.51069, 130000, 3.51069, ymin, 0.02, '|>' )
+        arrow = TArrow( 3.51069, ymin+50000, 3.51069, ymin, 0.02, '|>' )
         arrow.SetFillStyle( 1001 )
         arrow.Draw()
-        arrow2 = TArrow( 3.55617, 130000, 3.55617, ymin, 0.02, '|>' )
+        arrow2 = TArrow( 3.55617, ymin+50000, 3.55617, ymin, 0.02, '|>' )
         arrow2.SetFillStyle( 1001 )
         arrow2.Draw()
     elif option == 5:
@@ -712,24 +780,25 @@ if __name__ == "__main__":
     #mass_plot("AnalysisResults_chic_20240215.root", 11, "plot_mass_eejpsi_truthmatched.svg")
     #mass_plot("AnalysisResults_chic_20240217.root", 15, "20240217/plot_mass_ee_eejpsi_matched.pdf")´
 
-    filename = "AnalysisResults_chic_20240216.root"
-    # mass_plot(filename, 11, "20240225/plot_mass_eejpsi_truthmatched.pdf") 
-    # mass_plot(filename, 11, "20240225/plot_mass_eejpsi_truthmatched.svg")  
-    mass_plot(filename, 10, "20240225/plot_mass_eejpsi_truth.pdf") 
-    mass_plot(filename, 10, "20240225/plot_mass_eejpsi_truth.svg") 
-    mass_plot(filename, 0, "20240225/plot_mass_eejpsi_matched.pdf") 
-    mass_plot(filename, 0, "20240225/plot_mass_eejpsi_matched.svg") 
-    mass_plot(filename, 30, "20240225/plot_mass_eephotonchic_truth.pdf") 
-    mass_plot(filename, 30, "20240225/plot_mass_eephotonchic_truth.svg") 
-    mass_plot(filename, 21, "20240225/plot_mass_eewithoutbackground_eejpsi_matched.pdf") 
-    mass_plot(filename, 21, "20240225/plot_mass_eewithoutbackground_eejpsi_matched.svg") 
-    mass_plot(filename, 3, "20240225/plot_mass_eephoton_triple.pdf") 
-    mass_plot(filename, 3, "20240225/plot_mass_eephoton_triple.svg") 
-    mass_plot(filename, 5, "20240225/plot_mass_eephotonchic_matched.pdf") 
-    mass_plot(filename, 5, "20240225/plot_mass_eephotonchic_matched.svg") 
-    mass_plot(filename, 4, "20240225/plot_mass_eephotonchic_triplematched.pdf") 
-    mass_plot(filename, 4, "20240225/plot_mass_eephotonchic_triplematched.svg") 
-    mass_plot(filename, 20, "20240225/plot_mass_ee_background.pdf") 
-    mass_plot(filename, 20, "20240225/plot_mass_ee_background.svg") 
-    mass_plot(filename, 22, "20240225/plot_mass_ee_background_smallrange.pdf") 
-    mass_plot(filename, 22, "20240225/plot_mass_ee_background_smallrange.svg") 
+    filename = "AnalysisResults_chicall_20240224.root"
+    # mass_plot(filename, 11, "20240305/plot_mass_eejpsi_truthmatched.pdf") 
+    # mass_plot(filename, 11, "20240305/plot_mass_eejpsi_truthmatched.svg")  
+    mass_plot(filename, 10, "20240305/plot_mass_eejpsi_truth.pdf") 
+    mass_plot(filename, 10, "20240305/plot_mass_eejpsi_truth.svg") 
+    mass_plot(filename, 0, "20240305/plot_mass_eejpsi_matched.pdf") 
+    mass_plot(filename, 0, "20240305/plot_mass_eejpsi_matched.svg") 
+    mass_plot(filename, 30, "20240305/plot_mass_eephotonchic_truth.pdf") 
+    mass_plot(filename, 30, "20240305/plot_mass_eephotonchic_truth.svg") 
+    mass_plot(filename, 21, "20240305/plot_mass_eewithoutbackground_eejpsi_matched.pdf") 
+    mass_plot(filename, 21, "20240305/plot_mass_eewithoutbackground_eejpsi_matched.svg") 
+    mass_plot(filename, 3, "20240305/plot_mass_eephoton_triple.pdf") 
+    mass_plot(filename, 3, "20240305/plot_mass_eephoton_triple.svg") 
+    mass_plot(filename, 5, "20240305/plot_mass_eephotonchic_matched.pdf") 
+    mass_plot(filename, 5, "20240305/plot_mass_eephotonchic_matched.svg") 
+    mass_plot(filename, 4, "20240305/plot_mass_eephotonchic_triplematched.pdf") 
+    mass_plot(filename, 4, "20240305/plot_mass_eephotonchic_triplematched.svg") 
+    mass_plot(filename, 20, "20240305/plot_mass_ee_background.pdf") 
+    mass_plot(filename, 20, "20240305/plot_mass_ee_background.svg") 
+    mass_plot(filename, 22, "20240305/plot_mass_ee_background_smallrange.pdf") 
+    mass_plot(filename, 22, "20240305/plot_mass_ee_background_smallrange.svg") 
+    # mass_plot(filename, 25, "20240305/plot_ratiomass_triple_matched.pdf")
